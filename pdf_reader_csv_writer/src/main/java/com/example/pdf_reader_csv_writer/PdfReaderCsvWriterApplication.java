@@ -1,6 +1,7 @@
 package com.example.pdf_reader_csv_writer;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -14,39 +15,65 @@ public class PdfReaderCsvWriterApplication {
 	public static void main(String[] args) {
 		
 		 try {
-	            // Replace this with the path to your PDF file
-			 
-	            System.out.println("Current Directory: " + System.getProperty("user.dir"));
 
-	            File file = new File("C:/Users/natin/Desktop/program/pdf-reader-csv-writer/pdf_reader_csv_writer/src/main/java/com/example/pdf_reader_csv_writer/file.pdf");
+			 String outputFilePath = "dados2.csv";
+
+			 File file = new File(System.getProperty("user.dir").concat("/src/main/java/com/example/pdf_reader_csv_writer/file.pdf"));
 
 	            if (!file.exists()) {
 	                System.err.println("File not found.");
 	                return;
 	            }
 
-	            // Load the PDF document
-	            PDDocument document = PDDocument.load(file);
-	            
-	            // Instantiate PDFTextStripper class
-	            PDFTextStripper pdfStripper = new PDFTextStripper();
 
-	            // Get the text from the PDF document
-	            String text = pdfStripper.getText(document);
+			 	writeTextInCsv(outputFilePath, getStringFromFile(file));
 
-	            // Print the extracted text
-	            System.out.println("Text from PDF:\n" + text);
 
-	            // Close the document
-	            document.close();
+			 System.out.println("Dados convertidos com sucesso para o arquivo CSV!");
+
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }
+
 		
 		SpringApplication.run(PdfReaderCsvWriterApplication.class, args);
 
 		
 		 
+	}
+
+	private static void writeTextInCsv(String outputFilePath, String text) throws IOException {
+		FileWriter writer = new FileWriter(outputFilePath);
+
+		// Dividir a string em linhas
+		String[] lines = text.split("\n");
+
+		for (String line : lines) {
+			// Dividir cada linha em colunas
+			String[] columns = line.split(";");
+
+			// Escrever as colunas no arquivo CSV
+			for (int i = 0; i < columns.length; i++) {
+				writer.append(columns[i]);
+				if (i != columns.length - 1) {
+					writer.append(',');
+				}
+			}
+			writer.append('\n');
+		}
+
+		writer.close();
+	}
+
+	private static String getStringFromFile(File file) throws IOException {
+		// Instantiate PDFTextStripper class
+		PDFTextStripper pdfStripper = new PDFTextStripper();
+		// Load the PDF document
+		PDDocument document = PDDocument.load(file);
+		String text = pdfStripper.getText(document);
+		// Close the document
+		document.close();
+		return text;
 	}
 
 }
